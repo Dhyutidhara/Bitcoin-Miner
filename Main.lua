@@ -182,37 +182,35 @@ end)
 
 CrystaliserWindow:Section("Enable on \"Crystaliser Ready!\"")
 
-local function collectGem(Gem)
-    GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
-    wait(0.25)
-    FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
-    wait(1)
-end
+-- local function collectGem(Gem)
+--     GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
+--     wait(0.25)
+--     FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+--     wait(1)
+-- end
 
 CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
     if CrystaliserWindow.flags.CollectGems then
-        local Start, Count, GemsSpawned, IsGemCollected
+        local GemsSpawned
         GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
         wait(1)
         FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
-        while wait() and CrystaliserWindow.flags.CollectGems do
+        while CrystaliserWindow.flags.CollectGems do
             wait(1.5)
-            Start, Count = os.time(), 0
             GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.BeachBarrier.CFrame
             wait(1)
-            game:GetService("ReplicatedStorage").Events.PlaceCrystaliser:InvokeServer()
-            while ((Count < 4) and (os.time() - Start < 121)) and CrystaliserWindow.flags.CollectGems do
+            GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
+            wait(2)
+            while CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
                 wait(2)
-                GemsSpawned, IsGemCollected = GameWorkspace.GemsSpawned:GetChildren(), false
+                GemsSpawned = GameWorkspace.GemsSpawned:GetChildren()
                 for Index, Gem in next, GemsSpawned do
-                    if pcall(collectGem, Gem) then
-                        IsGemCollected = true
-                    end
-                end
-                if IsGemCollected then
-                    Count = Count + 1
+                    GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
+                    wait(0.25)
+                    FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+                    wait(1)
                 end
             end
         end
