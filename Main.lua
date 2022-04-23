@@ -186,20 +186,22 @@ CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
     while wait(1) and CrystaliserWindow.flags.CollectGems do
-        GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
-        wait(0.25)
-        FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
-        wait(1)
-        GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.BeachBarrier.CFrame
-        wait(0.25)
-        GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
-        wait(1)
-        while wait(1) and CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
-            local GemsSpawned = GameWorkspace.GemsSpawned:GetChildren()
-            for Index, Gem in next, GemsSpawned do
-                GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
-                wait(0.25)
-                FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+        if GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text == "READY!" then
+            GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
+            wait(0.25)
+            FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
+            wait(1)
+            GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.BeachBarrier.CFrame
+            wait(0.25)
+            GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
+            wait(1)
+            while wait(1) and CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
+                local GemsSpawned = GameWorkspace.GemsSpawned:GetChildren()
+                for Index, Gem in next, GemsSpawned do
+                    GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
+                    wait(0.25)
+                    FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+                end
             end
         end
     end
