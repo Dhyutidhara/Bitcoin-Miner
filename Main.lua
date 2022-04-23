@@ -183,7 +183,7 @@ end)
 CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
-    while wait(1) and CrystaliserWindow.flags.CollectGems do
+    while wait() and CrystaliserWindow.flags.CollectGems do
         if GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text == "READY!" then
             GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
             wait(1)
@@ -201,6 +201,8 @@ CrystaliserWindow:Toggle("Auto Collect Gems", {
                     wait(1)
                 end
             end
+        else
+            wait(2)
         end
     end
 end)
