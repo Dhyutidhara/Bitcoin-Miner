@@ -180,7 +180,7 @@ BoostsAndCratesWindow:Toggle("Auto Claim Small Crate", {
     end
 end)
 
-CrystaliserWindow:Toggle("Auto Collect Gems", {
+CrystaliserWindow:Toggle("Auto Collect Crystals", {
     flag = 'CollectGems'
 }, function(new)
     while wait() and CrystaliserWindow.flags.CollectGems do
