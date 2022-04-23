@@ -180,27 +180,25 @@ BoostsAndCratesWindow:Toggle("Auto Claim Small Crate", {
     end
 end)
 
-CrystaliserWindow:Section("Enable on \"Crystaliser Ready!\"")
-
 CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
     while wait(1) and CrystaliserWindow.flags.CollectGems do
         if GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text == "READY!" then
             GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
-            wait(0.25)
+            wait(1)
             FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
-            wait(1)
+            wait(1.5)
             GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.BeachBarrier.CFrame
-            wait(0.25)
-            GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
             wait(1)
-            while wait(1) and CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
+            GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
+            while wait(2) and CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
                 local GemsSpawned = GameWorkspace.GemsSpawned:GetChildren()
                 for Index, Gem in next, GemsSpawned do
                     GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
                     wait(0.25)
                     FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+                    wait(1)
                 end
             end
         end
