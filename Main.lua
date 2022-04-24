@@ -35,21 +35,20 @@ local Boosts = {
     "15 min Server Mining Boost", "30 min Server Mining Boost", "1H Server Mining Boost"
 }
 
-MainWindow:Toggle("Auto Exchange Bitcoin", {
-    flag = 'ExchangeBitcoin'
+MainWindow:Toggle("Auto Overclock", {
+    flag = 'Overclock'
 }, function(new)
-    while wait() and MainWindow.flags.ExchangeBitcoin do
-        GameReplicatedStorage.Events.ExchangeMoney:FireServer(unpack({[1] = true}))
-        wait(120)
-    end
-end)
-
-MainWindow:Toggle("Auto Exchange Solaris", {
-    flag = 'ExchangeSolaris'
-}, function(new)
-    while wait() and MainWindow.flags.ExchangeSolaris do
-        GameReplicatedStorage.Events.ExchangeMoney:FireServer(unpack({[1] = false}))
-        wait(120)
+    while wait() and MainWindow.flags.Overclock do
+        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
+            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
+                wait(GamePlayers.LocalPlayer.OvcTim.Value - os.time())
+            else
+                GameReplicatedStorage.Events.Overclk:InvokeServer()
+                wait(0.5)
+            end
+        else
+            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
+        end
     end
 end)
 
@@ -71,27 +70,11 @@ MainWindow:Toggle("Auto Change Algorithm", {
     end
 end)
 
-MainWindow:Toggle("Auto Overclock", {
-    flag = 'Overclock'
-}, function(new)
-    while wait() and MainWindow.flags.Overclock do
-        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
-            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
-                wait(GamePlayers.LocalPlayer.OvcTim.Value - os.time())
-            else
-                GameReplicatedStorage.Events.Overclk:InvokeServer()
-                wait(0.5)
-            end
-        else
-            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
-        end
-    end
-end)
-
+MainWindow:Section("v0.3.2")
 MainWindow:Section("Thx to Gerard#0001 for UI Lib")
 MainWindow:Section("Script by Dhyutidhara#8832")
 
-BoostsAndCratesWindow:Section("BOOSTS")
+BoostsAndCratesWindow:Section("--[ BOOSTS ]--")
 
 BoostsAndCratesWindow:Toggle("Auto Claim Free Boost Star", {
     flag = 'ClaimFreeBoostStar'
@@ -152,7 +135,7 @@ BoostsAndCratesWindow:Dropdown("Select Boost to Use", {
     list = Boosts
 })
 
-BoostsAndCratesWindow:Section("CRATES")
+BoostsAndCratesWindow:Section("--[ CRATES ]--")
 
 BoostsAndCratesWindow:Toggle("Auto Claim Normal Crate", {
     flag = 'ClaimNormalCrate'
@@ -179,6 +162,10 @@ BoostsAndCratesWindow:Toggle("Auto Claim Small Crate", {
         end
     end
 end)
+
+-- Automatically obtains, activates Crystaliser and collects gems
+-- The feature starts only when Crystaliser is in "READY!" state
+-- This feature is Wait-Period optimized :)
 
 CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
@@ -207,7 +194,7 @@ CrystaliserWindow:Toggle("Auto Collect Gems", {
     end
 end)
 
-CrystaliserWindow:Section("WARPING")
+CrystaliserWindow:Section("--[ WARPING ]--")
 
 CrystaliserWindow:Toggle("Auto Buy 5 min Super Mining Boost", {
     flag = 'Buy5minSuperMiningBoost'
@@ -241,12 +228,17 @@ CrystaliserWindow:Toggle("Auto Buy 15 M Time Warp", {
     end
 end)
 
+-- Automatically uses 15 M Time Warp boost efficiently
+-- The most efficient way to use 15 min Time Warp boost now: [ Overclocked ] + [ Algorithm Value > 1.8 ] + [ 5 min Super Mining Boost ]
+-- Auto Time Warp automatically uses 15 M Time Warp when the above efficient conditions are satisfied
+-- This feature is Wait-Period optimized :)
+
 CrystaliserWindow:Toggle("Auto Time Warp", {
     flag = 'AutoTimeWarp'
 }, function(new)
     while wait() and CrystaliserWindow.flags.AutoTimeWarp do
         if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
-            if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then
+            if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then -- Hardcoded to efficient Algo value, 1.8+
                 if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
                     local args = {
                         [1] = "5 min Super Mining Boost"
