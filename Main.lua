@@ -20,7 +20,7 @@ local function FireProximityPrompt(ProximityPromptObj, n, ShouldSkipHold)
     end
 end
 
-local MainWindow = Library:CreateWindow("Farming")
+local MainWindow = Library:CreateWindow("Main")
 local BoostsAndCratesWindow = Library:CreateWindow("Boosts & Crates")
 local CrystaliserWindow = Library:CreateWindow("Crystaliser")
 
@@ -35,21 +35,20 @@ local Boosts = {
     "15 min Server Mining Boost", "30 min Server Mining Boost", "1H Server Mining Boost"
 }
 
-MainWindow:Toggle("Auto Exchange Bitcoin", {
-    flag = 'ExchangeBitcoin'
+MainWindow:Toggle("Auto Overclock", {
+    flag = 'Overclock'
 }, function(new)
-    while wait() and MainWindow.flags.ExchangeBitcoin do
-        GameReplicatedStorage.Events.ExchangeMoney:FireServer(unpack({[1] = true}))
-        wait(120)
-    end
-end)
-
-MainWindow:Toggle("Auto Exchange Solaris", {
-    flag = 'ExchangeSolaris'
-}, function(new)
-    while wait() and MainWindow.flags.ExchangeSolaris do
-        GameReplicatedStorage.Events.ExchangeMoney:FireServer(unpack({[1] = false}))
-        wait(120)
+    while wait() and MainWindow.flags.Overclock do
+        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
+            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
+                wait(GamePlayers.LocalPlayer.OvcTim.Value - os.time())
+            else
+                GameReplicatedStorage.Events.Overclk:InvokeServer()
+                wait(0.5)
+            end
+        else
+            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
+        end
     end
 end)
 
@@ -71,27 +70,11 @@ MainWindow:Toggle("Auto Change Algorithm", {
     end
 end)
 
-MainWindow:Toggle("Auto Overclock", {
-    flag = 'Overclock'
-}, function(new)
-    while wait() and MainWindow.flags.Overclock do
-        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
-            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
-                wait(GamePlayers.LocalPlayer.OvcTim.Value - os.time())
-            else
-                GameReplicatedStorage.Events.Overclk:InvokeServer()
-                wait(0.5)
-            end
-        else
-            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
-        end
-    end
-end)
-
+MainWindow:Section("v0.3.2")
 MainWindow:Section("Thx to Gerard#0001 for UI Lib")
 MainWindow:Section("Script by Dhyutidhara#8832")
 
-BoostsAndCratesWindow:Section("BOOSTS")
+BoostsAndCratesWindow:Section("--[ BOOSTS ]--")
 
 BoostsAndCratesWindow:Toggle("Auto Claim Free Boost Star", {
     flag = 'ClaimFreeBoostStar'
@@ -152,7 +135,7 @@ BoostsAndCratesWindow:Dropdown("Select Boost to Use", {
     list = Boosts
 })
 
-BoostsAndCratesWindow:Section("CRATES")
+BoostsAndCratesWindow:Section("--[ CRATES ]--")
 
 BoostsAndCratesWindow:Toggle("Auto Claim Normal Crate", {
     flag = 'ClaimNormalCrate'
@@ -180,41 +163,104 @@ BoostsAndCratesWindow:Toggle("Auto Claim Small Crate", {
     end
 end)
 
-CrystaliserWindow:Section("Enable on \"Crystaliser Ready!\"")
-
-local function collectGem(Gem)
-    GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
-    wait(0.25)
-    FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
-    wait(1)
-end
+-- Automatically obtains, activates Crystaliser and collects gems
+-- The feature starts only when Crystaliser is in "READY!" state
+-- This feature is Wait-Period optimized :)
 
 CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
-    if CrystaliserWindow.flags.CollectGems then
-        local Start, Count, GemsSpawned, IsGemCollected
-        GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
-        wait(1)
-        FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
-        while wait() and CrystaliserWindow.flags.CollectGems do
+    while wait() and CrystaliserWindow.flags.CollectGems do
+        if GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text == "READY!" then
+            GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.ActiveMecahnicPrompts.CrystalRent.CFrame
+            wait(1)
+            FireProximityPrompt(GameWorkspace.ActiveMecahnicPrompts.CrystalRent.ProximityPrompt, 1, false)
             wait(1.5)
-            Start, Count = os.time(), 0
             GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = GameWorkspace.BeachBarrier.CFrame
             wait(1)
-            game:GetService("ReplicatedStorage").Events.PlaceCrystaliser:InvokeServer()
-            while ((Count < 4) and (os.time() - Start < 121)) and CrystaliserWindow.flags.CollectGems do
-                wait(2)
-                GemsSpawned, IsGemCollected = GameWorkspace.GemsSpawned:GetChildren(), false
+            GameReplicatedStorage.Events.PlaceCrystaliser:InvokeServer()
+            while wait(2) and CrystaliserWindow.flags.CollectGems and GameWorkspace.ActiveMecahnicPrompts.CrystalRent.BillboardGui.State.Text ~= "READY!" do
+                local GemsSpawned = GameWorkspace.GemsSpawned:GetChildren()
                 for Index, Gem in next, GemsSpawned do
-                    if pcall(collectGem, Gem) then
-                        IsGemCollected = true
-                    end
-                end
-                if IsGemCollected then
-                    Count = Count + 1
+                    GamePlayers.LocalPlayer.Character.HumanoidRootPart.CFrame = Gem.Part.CFrame * CFrame.new(0, 10, 0)
+                    wait(0.25)
+                    FireProximityPrompt(Gem.Part.ProximityPrompt, 1, false)
+                    wait(1)
                 end
             end
+        else
+            wait(2)
+        end
+    end
+end)
+
+CrystaliserWindow:Section("--[ WARPING ]--")
+
+CrystaliserWindow:Toggle("Auto Buy 5 min Super Mining Boost", {
+    flag = 'Buy5minSuperMiningBoost'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.Buy5minSuperMiningBoost do
+        if GamePlayers.LocalPlayer.BoostStars.Value > 5 then
+            local args = {
+                [1] = "5 min Super Mining Boost"
+            }
+            GameReplicatedStorage.Events.BuyBoost:FireServer(unpack(args))
+            wait(0.5)
+        else
+            wait(GamePlayers.LocalPlayer.NxBss.Value)
+        end
+    end
+end)
+
+CrystaliserWindow:Toggle("Auto Buy 15 M Time Warp", {
+    flag = 'Buy15minTimeWarpBoost'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.Buy5minSuperMiningBoost do
+        if GamePlayers.LocalPlayer.CrystalEnergy.Value > 128 then
+            local args = {
+                [1] = "15 M Time Warp"
+            }
+            GameReplicatedStorage.Events.CrystalBuy:FireServer(unpack(args))
+            wait(0.5)
+        else
+            wait(2)
+        end
+    end
+end)
+
+-- Automatically uses 15 M Time Warp boost efficiently
+-- The most efficient way to use 15 min Time Warp boost now: [ Overclocked ] + [ Algorithm Value > 1.8 ] + [ 5 min Super Mining Boost ]
+-- Auto Time Warp automatically uses 15 M Time Warp when the above efficient conditions are satisfied
+-- This feature is Wait-Period optimized :)
+
+CrystaliserWindow:Toggle("Auto Time Warp", {
+    flag = 'AutoTimeWarp'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.AutoTimeWarp do
+        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
+            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
+                if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then -- Hardcoded to efficient Algo value, 1.8+
+                    if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
+                        local args = {
+                            [1] = "5 min Super Mining Boost"
+                        }
+                        GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
+                        wait(0.5)
+                    end
+                    local args = {
+                        [1] = "15 M Time Warp"
+                    }
+                    GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
+                    wait(0.5)
+                else
+                    wait(2)
+                end
+            else
+                GameReplicatedStorage.Events.Overclk:InvokeServer()
+                wait(0.5)
+            end
+        else
+            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
         end
     end
 end)
