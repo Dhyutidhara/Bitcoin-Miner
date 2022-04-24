@@ -180,7 +180,7 @@ BoostsAndCratesWindow:Toggle("Auto Claim Small Crate", {
     end
 end)
 
-CrystaliserWindow:Toggle("Auto Collect Crystals", {
+CrystaliserWindow:Toggle("Auto Collect Gems", {
     flag = 'CollectGems'
 }, function(new)
     while wait() and CrystaliserWindow.flags.CollectGems do
@@ -203,6 +203,67 @@ CrystaliserWindow:Toggle("Auto Collect Crystals", {
             end
         else
             wait(2)
+        end
+    end
+end)
+
+CrystaliserWindow:Section("WARPING")
+
+CrystaliserWindow:Toggle("Auto Buy 5 min Super Mining Boost", {
+    flag = 'Buy5minSuperMiningBoost'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.Buy5minSuperMiningBoost do
+        if GamePlayers.LocalPlayer.BoostStars.Value > 5 then
+            local args = {
+                [1] = "5 min Super Mining Boost"
+            }
+            GameReplicatedStorage.Events.BuyBoost:FireServer(unpack(args))
+            wait(0.5)
+        else
+            wait(GamePlayers.LocalPlayer.NxBss.Value)
+        end
+    end
+end)
+
+CrystaliserWindow:Toggle("Auto Buy 15 M Time Warp", {
+    flag = 'Buy15minTimeWarpBoost'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.Buy5minSuperMiningBoost do
+        if GamePlayers.LocalPlayer.CrystalEnergy.Value > 128 then
+            local args = {
+                [1] = "15 M Time Warp"
+            }
+            GameReplicatedStorage.Events.CrystalBuy:FireServer(unpack(args))
+            wait(0.5)
+        else
+            wait(2)
+        end
+    end
+end)
+
+CrystaliserWindow:Toggle("Auto Time Warp", {
+    flag = 'AutoTimeWarp'
+}, function(new)
+    while wait() and CrystaliserWindow.flags.AutoTimeWarp do
+        if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
+            if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then
+                if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
+                    local args = {
+                        [1] = "5 min Super Mining Boost"
+                    }
+                    GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
+                    wait(0.5)
+                end
+                local args = {
+                    [1] = "15 M Time Warp"
+                }
+                GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
+                wait(0.5)
+            else
+                wait(2)
+            end
+        else
+            wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
         end
     end
 end)
