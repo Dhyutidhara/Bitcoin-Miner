@@ -20,7 +20,7 @@ local function FireProximityPrompt(ProximityPromptObj, n, ShouldSkipHold)
     end
 end
 
-local MainWindow = Library:CreateWindow("Farming")
+local MainWindow = Library:CreateWindow("Main")
 local BoostsAndCratesWindow = Library:CreateWindow("Boosts & Crates")
 local CrystaliserWindow = Library:CreateWindow("Crystaliser")
 
