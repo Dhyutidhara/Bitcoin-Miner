@@ -237,22 +237,27 @@ CrystaliserWindow:Toggle("Auto Time Warp", {
     flag = 'AutoTimeWarp'
 }, function(new)
     while wait() and CrystaliserWindow.flags.AutoTimeWarp do
-        if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
-            if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then -- Hardcoded to efficient Algo value, 1.8+
-                if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
+        if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
+            if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
+                if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then -- Hardcoded to efficient Algo value, 1.8+
+                    if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
+                        local args = {
+                            [1] = "5 min Super Mining Boost"
+                        }
+                        GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
+                        wait(0.5)
+                    end
                     local args = {
-                        [1] = "5 min Super Mining Boost"
+                        [1] = "15 M Time Warp"
                     }
                     GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
                     wait(0.5)
+                else
+                    wait(2)
                 end
-                local args = {
-                    [1] = "15 M Time Warp"
-                }
-                GameReplicatedStorage.Events.UseBoost:FireServer(unpack(args))
-                wait(0.5)
             else
-                wait(2)
+                GameReplicatedStorage.Events.Overclk:InvokeServer()
+                wait(0.5)
             end
         else
             wait(GamePlayers.LocalPlayer.OvCol.Value - os.time())
