@@ -239,7 +239,7 @@ CrystaliserWindow:Toggle("Auto Time Warp", {
     while wait() and CrystaliserWindow.flags.AutoTimeWarp do
         if os.time() > GamePlayers.LocalPlayer.OvCol.Value then
             if GamePlayers.LocalPlayer.OvcTim.Value > 0 then
-                if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.8 then -- Hardcoded to efficient Algo value, 1.8+
+                if GameReplicatedStorage.Algo["Al"..GamePlayers.LocalPlayer.Alsel.Value].Value > 1.9 then -- Hardcoded to efficient Algo value, 1.9+
                     if GamePlayers.LocalPlayer.CurBoost.Value ~= "Super Mining Boost" then
                         local args = {
                             [1] = "5 min Super Mining Boost"
