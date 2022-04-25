@@ -215,7 +215,7 @@ end)
 CrystaliserWindow:Toggle("Auto Buy 15 M Time Warp", {
     flag = 'Buy15minTimeWarpBoost'
 }, function(new)
-    while wait() and CrystaliserWindow.flags.Buy5minSuperMiningBoost do
+    while wait() and CrystaliserWindow.flags.Buy15minTimeWarpBoost do
         if GamePlayers.LocalPlayer.CrystalEnergy.Value > 128 then
             local args = {
                 [1] = "15 M Time Warp"
